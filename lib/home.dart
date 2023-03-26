@@ -3,6 +3,8 @@ import 'package:flutter_download_example/download_controller.dart';
 import 'package:flutter_download_example/download_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'download_helper.dart';
+
 class _DownloadLink {
   final String name;
   final String link;
@@ -62,12 +64,19 @@ class _HomeState extends ConsumerState<Home> {
                   },
                 ),
                 const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    ref.read(downloadControllerProvider.notifier).addDownload(url: selected.link);
-                  },
-                  child: const Text('Download'),
-                ),
+                StreamBuilder<bool>(
+                    initialData: true,
+                    stream: didCheckingExistedFileForDownloadFinished.stream,
+                    builder: (context, value) {
+                      return ElevatedButton(
+                        onPressed: value.data!
+                            ? () async {
+                                await ref.watch(downloadControllerProvider.notifier).addDownload(url: selected.link);
+                              }
+                            : null,
+                        child: const Text('Download'),
+                      );
+                    }),
               ],
             ),
             const SizedBox(height: 10),

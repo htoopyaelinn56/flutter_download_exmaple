@@ -3,6 +3,9 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:rxdart/rxdart.dart';
+
+final didCheckingExistedFileForDownloadFinished = BehaviorSubject<bool>.seeded(true);
 
 class DownloadHelper {
   static Future<void> downloadFile({
@@ -20,6 +23,7 @@ class DownloadHelper {
       file: fileName,
       extension: extension,
     );
+    didCheckingExistedFileForDownloadFinished.add(false);
 
     for (int i = 1; await File(savePath).exists(); i++) {
       savePath = _savePath(
@@ -28,6 +32,7 @@ class DownloadHelper {
         extension: extension,
       );
     }
+
     bool finishedOnce = false; //flag to check only one finish event is invoked, if not there will be multiple finished events
 
     dio.download(
@@ -39,6 +44,7 @@ class DownloadHelper {
           final progress = (received / total * 100);
           final receivedSize = _getFileSizeString(bytes: received);
           onProgress?.call(progress, receivedSize);
+          didCheckingExistedFileForDownloadFinished.add(true);
         } else {
           if (!finishedOnce) {
             onFinished?.call();

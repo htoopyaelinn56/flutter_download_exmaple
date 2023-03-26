@@ -6,9 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class DownloadController extends StateNotifier<List<DownloadModel>> {
   DownloadController() : super([]);
 
-  void addDownload({
+  Future<void> addDownload({
     required String url,
-  }) {
+  }) async {
     state.add(
       DownloadModel(
         downloading: false,
@@ -19,7 +19,7 @@ class DownloadController extends StateNotifier<List<DownloadModel>> {
     );
     state = [...state];
     final index = state.length - 1;
-    DownloadHelper.downloadFile(
+    await DownloadHelper.downloadFile(
         url: url,
         fileName: 'Test Download',
         extension: 'bin',
